@@ -58,7 +58,7 @@ export default function ForumPage() {
       <main className="min-h-screen pt-32 pb-24 px-6 max-w-7xl mx-auto">
         <div className="flex justify-between items-end mb-12 gap-4">
           <div>
-            <h1 className="text-5xl font-black uppercase mb-4">Board Diskusi</h1>
+            <h1 className="text-5xl font-black uppercase mb-4">Forum Diskusi</h1>
             <p className="text-lg font-bold bg-[#fff3e1] inline-block px-3 py-1 border-4 border-[#233766] text-[#233766]">
               Kumpulkan topik, ajukan pertanyaan, dan jalin diskusi bersama anggota BukuWare.
             </p>
@@ -177,7 +177,6 @@ export default function ForumPage() {
                 </p>
                 <div className="mt-auto flex justify-between items-center pt-4 border-t-2 border-[#233766] border-dashed text-xs uppercase text-[#96582e] font-bold">
                   <span>{topic.createdAt.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}</span>
-                  <span>ID: {topic.id.slice(0, 6)}</span>
                 </div>
               </Link>
             ))

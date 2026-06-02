@@ -28,7 +28,7 @@ export default function Navbar() {
           Jadwal
         </Link>
         <Link href="/forum" className="hover:bg-[#ffb703] px-2 transition-colors border-2 border-transparent hover:border-[#233766]">
-          Board Diskusi
+          Forum Diskusi
         </Link>
         <Link href="/showcase" className="hover:bg-[#ffb703] px-2 transition-colors border-2 border-transparent hover:border-[#233766]">
           Showcase

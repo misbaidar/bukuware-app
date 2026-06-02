@@ -56,7 +56,7 @@ export default function Home() {
                 Lihat Jadwal
               </a>
               <a href="#forum" className="bg-[#233766] text-[#fff3e1] px-8 py-3 border-brutal shadow-brutal hover:shadow-brutal-hover hover:translate-x-1 hover:translate-y-1 transition-all uppercase">
-                Board Diskusi
+                Forum Diskusi
               </a>
               <a href="#ngoprek" className="bg-[#96582e] text-[#fff3e1] px-8 py-3 border-brutal shadow-brutal hover:shadow-brutal-hover hover:translate-x-1 hover:translate-y-1 transition-all uppercase">
                 Showcase
@@ -109,7 +109,7 @@ export default function Home() {
       <section id="forum" className="min-h-screen py-24 px-6 max-w-7xl mx-auto">
         <div className="flex flex-row justify-between items-end mb-12 gap-4">
           <div>
-            <h2 className="text-5xl font-black uppercase mb-4">Board Diskusi</h2>
+            <h2 className="text-5xl font-black uppercase mb-4">Forum Diskusi</h2>
             <p className="text-lg font-bold bg-white inline-block px-3 py-1 border-brutal">Ruang tanya jawab, diskusi, dan berbagi info teknologi.</p>
           </div>
           <Link href="/forum" className="bg-bwAccent text-bwText font-black px-6 py-3 border-brutal shadow-brutal hover:shadow-brutal-hover hover:translate-y-1 transition-all uppercase flex items-center gap-2">
@@ -135,7 +135,6 @@ export default function Home() {
                 <p className="text-sm font-semibold mb-6 text-[#233766] line-clamp-4" style={{ display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{topic.description}</p>
                 <div className="mt-auto flex justify-between items-center border-t-2 border-[#233766] border-dashed pt-4 text-xs uppercase text-[#96582e] font-bold">
                   <span>{topic.createdAt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                  <span>ID: {topic.id.slice(0, 6)}</span>
                 </div>
               </Link>
             ))}

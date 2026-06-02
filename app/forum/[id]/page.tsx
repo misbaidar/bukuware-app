@@ -61,9 +61,7 @@ export default function ForumTopicPage({ params }: { params: { id: string } }) {
             <Link href="/forum" className="text-sm uppercase font-bold tracking-wide text-[#233766] border-4 border-[#233766] px-4 py-2 bg-[#fff3e1] shadow-[8px_8px_0px_0px_#233766]">
               &larr; Kembali ke Board Diskusi
             </Link>
-            <h1 className="text-5xl font-black uppercase mt-6">Detail Topik</h1>
           </div>
-          <div className="text-right text-sm text-[#96582e]">ID Topik: {topicId.slice(0, 8)}</div>
         </div>
 
         {loading ? (
