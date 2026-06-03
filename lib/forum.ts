@@ -11,6 +11,7 @@ import {
   DocumentData,
   updateDoc,
   deleteDoc,
+  increment,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -22,6 +23,9 @@ export type ForumTopic = {
   authorName: string;
   authorId: string;
   createdAt: Date;
+  lastReplyAuthorName?: string;
+  lastReplyAt?: Date; // <-- Properti Baru: Waktu terakhir
+  replyCount?: number; // <-- Properti Baru: Jumlah balasan
 };
 
 export type ForumReply = {
@@ -47,6 +51,9 @@ export const listenTopics = (callback: (topics: ForumTopic[]) => void) => {
         authorName: data.authorName || "Anonim",
         authorId: data.authorId || "",
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
+        lastReplyAuthorName: data.lastReplyAuthorName,
+        lastReplyAt: data.lastReplyAt?.toDate ? data.lastReplyAt.toDate() : undefined,
+        replyCount: data.replyCount || 0,
       } as ForumTopic;
     });
     callback(topics);
@@ -118,11 +125,19 @@ export const listenReplies = (topicId: string, callback: (replies: ForumReply[])
   });
 };
 
-export const createReply = async (topicId: string, reply: Omit<ForumReply, "id" | "createdAt">) => {
-  const replyCollection = collection(db, "forumTopics", topicId, "replies");
-  await addDoc(replyCollection, {
-    ...reply,
-    createdAt: serverTimestamp(),
+export const createReply = async (topicId: string, data: Omit<ForumReply, 'id' | 'createdAt'>) => {
+  const repliesRef = collection(db, `forumTopics/${topicId}/replies`);
+  await addDoc(repliesRef, {
+    ...data,
+    createdAt: new Date(),
+  });
+
+  const topicRef = doc(db, "forumTopics", topicId);
+  await updateDoc(topicRef, {
+    lastReplyAuthorName: data.authorName,
+    lastReplyAt: new Date(), // <-- Simpan waktu saat ini
+    replyCount: increment(1), // <-- Otomatis +1 di database
+    updatedAt: new Date(),
   });
 };
 

@@ -174,13 +174,20 @@ export default function ForumTopicPage({ params }: { params: { id: string } }) {
                     )}
                   </div>
 
-                  <h2 className="text-4xl font-black uppercase mb-6">{topic.title}</h2>
+                  <h2 className="text-4xl font-black uppercase overflow-hidden mb-6">{topic.title}</h2>
 
                   <div className="text-lg text-[#233766]">
                     <BBCodeParser content={topic.description} />
                   </div>
 
-                  <div className="mt-8 text-sm uppercase text-[#96582e] font-bold border-t-2 border-[#233766] pt-4">Dibuat pada: {topic.createdAt.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })}</div>
+                  <div className="mt-8 text-sm uppercase text-[#96582e] font-bold border-t-2 border-[#233766] pt-4">
+                    <span className="text-xs uppercase font-bold text-[#96582e]">
+                      {topic.createdAt.toLocaleString('id-ID', {
+                        day: '2-digit', month: 'short', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                      })} WIB
+                    </span>
+                  </div>
                 </>
               ) : (
                 // Form Edit Topik Utama
@@ -232,7 +239,12 @@ export default function ForumTopicPage({ params }: { params: { id: string } }) {
                           <div className="flex items-center justify-between gap-4 mb-3 border-b-2 border-[#233766] border-dashed pb-2">
                             <span className="font-black uppercase text-[#233766]">{reply.authorName}</span>
                             <div className="flex items-center gap-4">
-                              <span className="text-xs uppercase text-[#96582e] font-bold">{reply.createdAt.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}</span>
+                              <span className="text-xs uppercase font-bold text-[#96582e]">
+                                {reply.createdAt.toLocaleString('id-ID', {
+                                  day: '2-digit', month: 'short', year: 'numeric',
+                                  hour: '2-digit', minute: '2-digit'
+                                })} WIB
+                              </span>
 
                               {/* Tombol Aksi Balasan (Hanya tampil jika user adalah pemilik balasan) */}
                               {user?.uid === reply.authorId && (

@@ -66,7 +66,7 @@ export default function ForumPage() {
           <div>
             <h1 className="text-5xl font-black uppercase mb-4">Forum Diskusi</h1>
             <p className="text-lg font-bold bg-[#fff3e1] inline-block px-3 py-1 border-4 border-[#233766] text-[#233766]">
-              Kumpulkan topik, ajukan pertanyaan, dan jalin diskusi bersama anggota BukuWare.
+              Kumpulan diskusi, ajukan pertanyaan, dan jalin diskusi bersama anggota BukuWare.
             </p>
           </div>
           {user ? (
