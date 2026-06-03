@@ -15,10 +15,10 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 w-full bg-[#fff3e1] border-b-4 border-[#233766] z-50 px-6 py-4 flex justify-between items-center min-w-[1024px]">
-      <div className="text-3xl font-black tracking-tighter uppercase flex items-center gap-2">
+      <Link href="/" className="text-3xl font-black tracking-tighter uppercase flex items-center gap-2">
         <span className="bg-[#233766] text-[#fff3e1] px-2 py-1 border-4 border-[#233766] shadow-[4px_4px_0px_0px_#233766]">BW</span>
         BukuWare
-      </div>
+      </Link>
 
       <div className="flex gap-6 font-bold text-lg">
         <Link href="/" className="hover:bg-[#ffb703] px-2 transition-colors border-2 border-transparent hover:border-[#233766]">
