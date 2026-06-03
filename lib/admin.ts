@@ -23,6 +23,7 @@ export type JadwalAdminItem = {
   tema: string;
   status: "Selesai" | "Berjalan" | "Akan Datang";
   coverLabel?: string;
+  coverUrl?: string;
   kategoriAtauPenerbit?: string;
   tahunAtauIsbn?: string;
   deskripsiDetail?: string;
@@ -65,6 +66,7 @@ export const listenJadwalItems = (callback: (items: JadwalAdminItem[]) => void) 
         tema: data.tema || "",
         status: data.status || "Akan Datang",
         coverLabel: data.coverLabel || "",
+        coverUrl: data.coverUrl || "",
         kategoriAtauPenerbit: data.kategoriAtauPenerbit || "",
         tahunAtauIsbn: data.tahunAtauIsbn || "",
         deskripsiDetail: data.deskripsiDetail || "",

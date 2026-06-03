@@ -18,6 +18,21 @@ type JadwalProps = {
   showAllLink?: boolean;
 };
 
+// Fungsi bantuan untuk merapikan format output datetime-local
+const formatDateTime = (dtStr: string) => {
+  if (!dtStr) return "";
+  if (dtStr.includes("T")) {
+    const d = new Date(dtStr);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString('id-ID', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      }) + ' WIB';
+    }
+  }
+  return dtStr;
+};
+
 export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: JadwalProps) {
   const [activePanelId, setActivePanelId] = useState<string | null>(null);
   const [items, setItems] = useState<JadwalAdminItem[]>([]);
@@ -45,7 +60,7 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
     } else {
       document.body.style.overflow = '';
     }
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setActivePanelId(null);
     };
@@ -55,28 +70,47 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
 
   const handleRegister = async (itemId: string, isRegistered: boolean) => {
     if (!user) {
+      alert("Silakan login terlebih dahulu untuk mendaftar kegiatan.");
       router.push('/login');
       return;
     }
+
     try {
       if (isRegistered) {
+        // 1. Optimistic UI Update (Hapus instan dari layar)
+        setRegisteredIds((prev) => prev.filter((id) => id !== itemId));
+
+        // 2. Eksekusi ke database
         await unregisterJadwal(itemId, user.uid);
+        alert("Pendaftaran berhasil dibatalkan.");
       } else {
+        // 1. Optimistic UI Update (Tambah instan ke layar)
+        setRegisteredIds((prev) => [...prev, itemId]);
+
+        // 2. Eksekusi ke database
         await registerJadwal(
           itemId,
           user.uid,
           user.displayName || user.email?.split("@")[0] || "Member",
           user.email || ""
         );
+        alert("Berhasil mendaftar!");
       }
     } catch (error) {
       console.error("Gagal melakukan registrasi:", error);
+
+      // Rollback UI jika database ternyata error/gagal
+      if (isRegistered) {
+        setRegisteredIds((prev) => [...prev, itemId]);
+      } else {
+        setRegisteredIds((prev) => prev.filter((id) => id !== itemId));
+      }
+
+      alert("Terjadi kesalahan pada server. Tindakan dibatalkan.");
     }
   };
 
-  // Mencari data spesifik untuk ditampilkan di modal
   const activeData = items.find((item) => item.id === activePanelId);
-
   const displayedItems = maxItems ? items.slice(0, maxItems) : items;
   const shouldShowAllLink = showAllLink && allPageLink && items.length > (maxItems ?? items.length);
 
@@ -90,7 +124,6 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
       </div>
 
       <div className="bg-white border-brutal shadow-brutal flex flex-col w-full">
-        {/* Header Tabel */}
         <div className="grid grid-cols-12 gap-4 bg-bwDark text-bwLight font-black uppercase p-4 border-brutal-b items-center">
           <div className="col-span-2">Periode</div>
           <div className="col-span-5">Literatur & Topik Utama</div>
@@ -98,7 +131,6 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
           <div className="col-span-3 text-right">Akses Panel</div>
         </div>
 
-        {/* Looping Data Jadwal */}
         {displayedItems.map((item, idx) => {
           const isSelesai = item.status === 'Selesai';
           const isBerjalan = item.status === 'Berjalan';
@@ -106,19 +138,19 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
           const isRegistered = registeredIds.includes(item.id);
 
           return (
-            <div 
-              key={item.id} 
+            <div
+              key={item.id}
               className={`flex flex-col ${idx !== displayedItems.length - 1 ? 'border-brutal-b' : ''} transition-colors ${isSelesai ? 'bg-gray-50' : isBerjalan ? 'bg-bwLight' : ''}`}
             >
-              <div 
-                className={`grid grid-cols-12 gap-4 p-6 items-start ${!isAkanDatang ? 'cursor-pointer hover:bg-gray-200 group opacity-90' : ''} relative`}
-                onClick={() => !isAkanDatang && setActivePanelId(item.id)}
+              {/* Kartu sekarang SELALU BISA DIKLIK untuk membuka detail */}
+              <div
+                className="grid grid-cols-12 gap-4 p-6 items-start cursor-pointer hover:bg-gray-200 group opacity-90 relative"
+                onClick={() => setActivePanelId(item.id)}
               >
-                {/* Indikator Berjalan */}
                 {isBerjalan && <div className="absolute left-0 top-0 bottom-0 w-2 bg-bwAccent border-r-4 border-bwText"></div>}
-                
+
                 <div className="col-span-2 font-bold text-lg pt-1">{item.periode}</div>
-                
+
                 <div className="col-span-5">
                   <h4 className="font-black text-2xl uppercase leading-none mb-2">{item.judul}</h4>
                   <p className="text-xs font-black uppercase bg-white px-2 py-0.5 inline-block mb-3 border-brutal-sm text-gray-500">
@@ -126,29 +158,28 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
                   </p>
                   <p className="text-sm font-semibold text-bwText leading-relaxed">Tema: {item.tema}</p>
                 </div>
-                
+
                 <div className="col-span-2 mt-0 pt-1">
                   <span className={`border-brutal-sm px-3 py-1 text-xs font-black uppercase ${isSelesai ? 'bg-gray-300' : isBerjalan ? 'bg-bwAccent shadow-brutal-sm' : 'bg-white border-dashed text-gray-500'}`}>
                     {item.status}
                   </span>
                 </div>
-                
+
                 <div className="col-span-3 mt-0 pt-1 flex gap-2 justify-end">
                   {!isAkanDatang ? (
                     <button className={`${isBerjalan ? 'bg-white text-bwText' : 'bg-bwText text-bwLight'} border-brutal group-hover:shadow-brutal-hover group-hover:translate-x-1 group-hover:translate-y-1 transition-all duration-200 px-3 py-2 font-black text-sm shadow-brutal-sm`}>
                       Detail
                     </button>
                   ) : (
-                    <button 
+                    <button
                       onClick={(e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); // Mencegah modal terbuka saat tombol Daftar diklik
                         handleRegister(item.id, isRegistered);
                       }}
-                      className={`border-brutal px-4 py-2 font-black text-sm uppercase shadow-brutal-sm transition-all duration-200 ${
-                        isRegistered 
-                          ? 'bg-[#ff6b6b] text-white hover:bg-[#ff5252]' 
-                          : 'bg-[#ffb703] text-bwText hover:shadow-brutal-hover hover:translate-x-0.5 hover:translate-y-0.5'
-                      }`}
+                      className={`border-brutal px-4 py-2 font-black text-sm uppercase shadow-brutal-sm transition-all duration-200 ${isRegistered
+                        ? 'bg-[#ff6b6b] text-white hover:bg-[#ff5252]'
+                        : 'bg-[#ffb703] text-bwText hover:shadow-brutal-hover hover:translate-x-0.5 hover:translate-y-0.5'
+                        }`}
                     >
                       {isRegistered ? 'Batal Daftar ×' : 'Daftar Sekarang ⬇'}
                     </button>
@@ -159,7 +190,7 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
           );
         })}
       </div>
-      
+
       {shouldShowAllLink ? (
         <div className="mt-12 text-center">
           <Link href={allPageLink!} className="bg-transparent border-brutal text-bwText font-black px-8 py-3 hover:bg-bwText hover:text-bwLight transition-colors uppercase">
@@ -168,7 +199,7 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
         </div>
       ) : null}
 
-      {/* MODAL NEO-BRUTALISM DINAMIS */}
+      {/* MODAL */}
       {activeData && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black/60" onClick={() => setActivePanelId(null)}></div>
@@ -183,19 +214,28 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
                 ✕ TUTUP
               </button>
             </header>
-            
+
             <div className="mt-6 text-sm leading-relaxed">
               <div className={`grid ${activeData.arsip && activeData.arsip.length > 0 ? 'grid-cols-2' : 'grid-cols-2'} gap-6`}>
-                
-                {/* Kolom Kiri: Referensi & Jadwal Sesi */}
+
                 <div className="space-y-6">
-                  {/* Detail Referensi */}
                   <div className="border-brutal p-4 bg-white shadow-brutal-sm">
                     <h6 className="font-black uppercase mb-4 text-sm bg-bwText text-bwLight px-2 py-1 inline-block">Detail Referensi</h6>
                     <div className="flex gap-4 mb-4">
-                      <div className="w-20 h-28 bg-bwDark border-brutal-sm flex-shrink-0 flex items-center justify-center text-bwLight text-xs font-bold text-center whitespace-pre-line">
-                        {activeData.coverLabel}
-                      </div>
+
+                      {/* RENDER GAMBAR DARI URL */}
+                      {activeData.coverUrl ? (
+                        <img
+                          src={activeData.coverUrl}
+                          alt={`Cover ${activeData.judul}`}
+                          className="w-24 h-32 object-cover border-brutal-sm flex-shrink-0 shadow-brutal-sm"
+                        />
+                      ) : (
+                        <div className="w-24 h-32 bg-bwDark border-brutal-sm flex-shrink-0 flex items-center justify-center text-bwLight text-xs font-bold text-center whitespace-pre-line p-2">
+                          Sampul Tidak Tersedia
+                        </div>
+                      )}
+
                       <div>
                         <p className="font-black text-lg leading-tight uppercase mb-1">{activeData.judul}</p>
                         <p className="text-xs font-bold text-gray-600 mb-1">{activeData.kategoriAtauPenerbit}</p>
@@ -204,16 +244,19 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
                     </div>
                     <p className="text-xs font-semibold leading-relaxed border-t-2 border-dashed border-bwText pt-3">{activeData.deskripsiDetail}</p>
                   </div>
-                  
-                  {/* Pelaksanaan Diskusi */}
+
                   {activeData.sesi && (
                     <div className="border-brutal p-4 bg-bwLight">
                       <h6 className="font-black uppercase mb-4 text-sm bg-bwDark text-bwLight px-2 py-1 inline-block">Pelaksanaan Diskusi</h6>
                       <ul className="space-y-3 font-semibold text-sm">
                         {activeData.sesi.map((sesi, idx) => (
-                          <li key={idx} className={`flex justify-between border-b-2 border-bwText border-dashed pb-2 ${sesi.isUpcoming ? 'opacity-50' : ''}`}>
+                          <li key={idx} className={`flex justify-between items-center border-b-2 border-bwText border-dashed pb-2 ${sesi.isUpcoming ? 'opacity-50' : ''}`}>
                             <span className={sesi.isCurrent ? 'font-black text-bwDark' : ''}>{sesi.judul}</span>
-                            <span className={`font-black ${sesi.isCurrent ? 'bg-white px-2 border-brutal-sm' : ''}`}>{sesi.tanggal}</span>
+
+                            {/* MERENDER TANGGAL MENGGUNAKAN FORMATTER */}
+                            <span className={`font-black text-xs text-right ${sesi.isCurrent ? 'bg-white px-2 py-1 border-brutal-sm' : ''}`}>
+                              {formatDateTime(sesi.tanggal)}
+                            </span>
                           </li>
                         ))}
                       </ul>
@@ -221,13 +264,11 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
                   )}
                 </div>
 
-                {/* Kolom Kanan: Arsip (Hanya muncul jika ada data arsip) */}
                 {activeData.arsip && activeData.arsip.length > 0 && (
                   <div className="border-brutal p-4 bg-white shadow-brutal-sm h-fit">
                     <h6 className="font-black uppercase mb-4 text-sm bg-bwAccent text-bwText px-2 py-1 inline-block">Arsip dari Kegiatan</h6>
                     <ul className="space-y-4 text-sm font-semibold">
                       {activeData.arsip.map((arsipItem, idx) => {
-                        // Menentukan gaya label arsip berdasarkan tipe
                         let badgeStyle = "bg-gray-200 text-bwText";
                         if (arsipItem.tipe === 'PDF') badgeStyle = "bg-bwDark text-bwLight";
                         else if (arsipItem.tipe === 'Slide') badgeStyle = "bg-bwText text-bwLight";
@@ -240,10 +281,10 @@ export default function Jadwal({ maxItems, allPageLink, showAllLink = false }: J
                             </span>
                             <div>
                               {arsipItem.url ? (
-                                <a 
-                                  href={arsipItem.url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
+                                <a
+                                  href={arsipItem.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                   className="font-black text-base hover:underline text-[#233766] flex items-center gap-1 group"
                                 >
                                   {arsipItem.judul}

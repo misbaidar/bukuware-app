@@ -24,9 +24,6 @@ export default function Navbar() {
         <Link href="/" className="hover:bg-[#ffb703] px-2 transition-colors border-2 border-transparent hover:border-[#233766]">
           Beranda
         </Link>
-        <Link href="/jadwal" className="hover:bg-[#ffb703] px-2 transition-colors border-2 border-transparent hover:border-[#233766]">
-          Jadwal
-        </Link>
         <Link href="/forum" className="hover:bg-[#ffb703] px-2 transition-colors border-2 border-transparent hover:border-[#233766]">
           Forum Diskusi
         </Link>

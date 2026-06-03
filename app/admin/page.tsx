@@ -29,6 +29,7 @@ const defaultJadwalForm = {
   tema: "",
   status: "Akan Datang" as "Selesai" | "Berjalan" | "Akan Datang",
   coverLabel: "",
+  coverUrl: "",
   kategoriAtauPenerbit: "",
   tahunAtauIsbn: "",
   deskripsiDetail: "",
@@ -151,6 +152,7 @@ export default function AdminPage() {
       tema: item.tema,
       status: item.status,
       coverLabel: item.coverLabel || "",
+      coverUrl: item.coverUrl || "",
       kategoriAtauPenerbit: item.kategoriAtauPenerbit || "",
       tahunAtauIsbn: item.tahunAtauIsbn || "",
       deskripsiDetail: item.deskripsiDetail || "",
@@ -233,8 +235,8 @@ export default function AdminPage() {
         {(message || error) && (
           <div
             className={`mb-8 p-4 border-4 rounded-none font-bold ${message
-                ? "bg-[#fff3e1] border-[#233766] text-[#96582e]"
-                : "bg-[#ffe3e3] border-red-600 text-red-800"
+              ? "bg-[#fff3e1] border-[#233766] text-[#96582e]"
+              : "bg-[#ffe3e3] border-red-600 text-red-800"
               }`}
           >
             {message || error}
@@ -361,11 +363,12 @@ export default function AdminPage() {
 
                 <div className="grid grid-cols-3 gap-6 mb-6">
                   <label className="block">
-                    <span className="text-sm font-black uppercase text-[#233766]">Label Sampul</span>
+                    <span className="text-sm font-black uppercase text-[#233766]">URL Sampul Buku</span>
                     <input
-                      value={jadwalForm.coverLabel}
-                      onChange={(e) => setJadwalForm((prev) => ({ ...prev, coverLabel: e.target.value }))}
-                      placeholder="e.g. Ebook\nPDF"
+                      type="url"
+                      value={jadwalForm.coverUrl || ""}
+                      onChange={(e) => setJadwalForm((prev) => ({ ...prev, coverUrl: e.target.value }))}
+                      placeholder="https://contoh.com/gambar-cover.jpg"
                       className="w-full border-4 border-[#233766] p-3 bg-white"
                     />
                   </label>
@@ -448,12 +451,12 @@ export default function AdminPage() {
                       />
                     </label>
                     <label className="block">
-                      <span className="text-xs font-black uppercase text-gray-600">Tanggal / Waktu</span>
+                      <span className="text-xs font-black uppercase text-gray-600">Tanggal & Waktu Mulai</span>
                       <input
+                        type="datetime-local"
                         value={tempSesi.tanggal}
                         onChange={(e) => setTempSesi((prev) => ({ ...prev, tanggal: e.target.value }))}
-                        placeholder="e.g. 15 Juni 2026, 19:00 WIB"
-                        className="w-full border-2 border-[#233766] p-2 bg-[#fff3e1] text-sm"
+                        className="w-full border-2 border-[#233766] p-2 bg-[#fff3e1] text-sm font-bold"
                       />
                     </label>
                   </div>
@@ -605,10 +608,10 @@ export default function AdminPage() {
                           <p className="text-sm font-semibold text-[#96582e] mt-2">Oleh: {item.penulis}</p>
                           <span
                             className={`inline-block mt-3 px-3 py-1 text-xs font-black uppercase border-4 ${item.status === "Berjalan"
-                                ? "bg-[#ffb703] text-[#233766] border-[#ffb703]"
-                                : item.status === "Selesai"
-                                  ? "bg-gray-300 text-[#233766] border-gray-300"
-                                  : "bg-blue-200 text-[#233766] border-blue-300"
+                              ? "bg-[#ffb703] text-[#233766] border-[#ffb703]"
+                              : item.status === "Selesai"
+                                ? "bg-gray-300 text-[#233766] border-gray-300"
+                                : "bg-blue-200 text-[#233766] border-blue-300"
                               }`}
                           >
                             {item.status}
