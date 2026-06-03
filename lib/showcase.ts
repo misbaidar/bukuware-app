@@ -7,6 +7,8 @@ import {
   serverTimestamp,
   doc,
   getDoc,
+  updateDoc,
+  deleteDoc,
   QuerySnapshot,
   DocumentData,
 } from "firebase/firestore";
@@ -20,6 +22,8 @@ export type ShowcaseItem = {
   repoUrl: string;
   authorName: string;
   authorId: string;
+  description: string;
+  thumbnailUrl: string;
   createdAt: Date;
 };
 
@@ -38,6 +42,8 @@ export const listenShowcase = (callback: (items: ShowcaseItem[]) => void) => {
         repoUrl: data.repoUrl || "#",
         authorName: data.authorName || "Anonim",
         authorId: data.authorId || "",
+        description: data.description || "",
+        thumbnailUrl: data.thumbnailUrl || "",
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
       } as ShowcaseItem;
     });
@@ -66,6 +72,18 @@ export const getShowcaseItem = async (id: string) => {
     repoUrl: data.repoUrl || "#",
     authorName: data.authorName || "Anonim",
     authorId: data.authorId || "",
+    description: data.description || "",
+    thumbnailUrl: data.thumbnailUrl || "",
     createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
   } as ShowcaseItem;
+};
+
+export const updateShowcaseItem = async (id: string, data: Partial<Omit<ShowcaseItem, "id" | "createdAt" | "authorId">>) => {
+  const docRef = doc(db, "showcase", id);
+  await updateDoc(docRef, data);
+};
+
+export const deleteShowcaseItem = async (id: string) => {
+  const docRef = doc(db, "showcase", id);
+  await deleteDoc(docRef);
 };

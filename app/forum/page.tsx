@@ -5,6 +5,8 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/components/AuthContext";
 import { ForumTopic, listenTopics, createTopic } from "@/lib/forum";
+import BBCodeEditor from "@/components/BBCodeEditor";
+import ForumCard from "@/components/ForumCard"; // <-- Import Komponen Card Horizontal
 
 export default function ForumPage() {
   const [topics, setTopics] = useState<ForumTopic[]>([]);
@@ -29,6 +31,10 @@ export default function ForumPage() {
   const handleCreateTopic = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!user) return;
+    if (!description.trim()) {
+      setError("Deskripsi tidak boleh kosong.");
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -67,7 +73,7 @@ export default function ForumPage() {
             <button
               type="button"
               onClick={() => setShowModal(true)}
-              className="bg-[#ffb703] text-[#233766] font-black px-6 py-3 border-4 border-[#233766] shadow-[8px_8px_0px_0px_#233766] uppercase"
+              className="bg-[#ffb703] text-[#233766] font-black px-6 py-3 border-4 border-[#233766] shadow-[8px_8px_0px_0px_#233766] hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_#233766] transition-all uppercase"
             >
               Buat Topik Baru
             </button>
@@ -88,14 +94,14 @@ export default function ForumPage() {
         )}
 
         {showModal && (
-          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6">
-            <div className="w-[900px] bg-[#fff3e1] border-4 border-[#233766] shadow-[12px_12px_0px_0px_#233766] p-8 relative">
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6">
+            <div className="w-[900px] max-h-[90vh] overflow-y-auto bg-[#fff3e1] border-4 border-[#233766] shadow-[12px_12px_0px_0px_#233766] p-8 relative">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="absolute top-4 right-4 bg-[#233766] text-[#fff3e1] px-4 py-2 border-4 border-[#233766] font-black uppercase"
+                className="absolute top-4 right-4 bg-[#233766] text-[#fff3e1] px-4 py-2 border-4 border-[#233766] font-black uppercase hover:bg-red-500 transition-colors"
               >
-                Tutup
+                ✕ Tutup
               </button>
               <h2 className="text-4xl font-black uppercase mb-4">Buat Topik Diskusi</h2>
               <form onSubmit={handleCreateTopic} className="space-y-4">
@@ -104,7 +110,7 @@ export default function ForumPage() {
                   <input
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
-                    className="w-full border-4 border-[#233766] p-3 bg-white"
+                    className="w-full border-4 border-[#233766] p-3 bg-white outline-none"
                     required
                     placeholder="Contoh: Cara optimasi Firebase untuk aplikasi Next.js"
                   />
@@ -114,19 +120,18 @@ export default function ForumPage() {
                   <input
                     value={category}
                     onChange={(event) => setCategory(event.target.value)}
-                    className="w-full border-4 border-[#233766] p-3 bg-white"
+                    className="w-full border-4 border-[#233766] p-3 bg-white outline-none"
                     required
                     placeholder="Umum / React / Firebase / dll."
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-[#233766] mb-2">Deskripsi</label>
-                  <textarea
+                  <BBCodeEditor
                     value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    className="w-full h-40 border-4 border-[#233766] p-3 bg-white"
-                    required
+                    onChange={setDescription}
                     placeholder="Jelaskan latar belakang pertanyaan atau topik diskusi..."
+                    disabled={submitting}
                   />
                 </div>
                 {error && <div className="text-red-600 font-bold">{error}</div>}
@@ -138,47 +143,25 @@ export default function ForumPage() {
                   >
                     {submitting ? "Menyimpan..." : "Publikasikan Topik"}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="bg-[#fff3e1] text-[#233766] px-6 py-3 border-4 border-[#233766] shadow-[8px_8px_0px_0px_#233766] uppercase font-black"
-                  >
-                    Batal
-                  </button>
                 </div>
               </form>
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-8">
+        {/* --- DAFTAR TOPIK MENGGUNAKAN FORUM CARD --- */}
+        <div className="flex flex-col gap-6">
           {loading ? (
-            <div className="col-span-3 p-6 bg-white border-4 border-[#233766] shadow-[8px_8px_0px_0px_#233766] text-center uppercase font-black">
+            <div className="p-6 bg-white border-4 border-[#233766] shadow-[8px_8px_0px_0px_#233766] text-center uppercase font-black">
               Memuat topik...
             </div>
           ) : topics.length === 0 ? (
-            <div className="col-span-3 p-6 bg-white border-4 border-[#233766] shadow-[8px_8px_0px_0px_#233766] text-center uppercase font-black">
+            <div className="p-6 bg-white border-4 border-[#233766] shadow-[8px_8px_0px_0px_#233766] text-center uppercase font-black">
               Belum ada topik, jadilah yang pertama membuka diskusi.
             </div>
           ) : (
             topics.map((topic) => (
-              <Link
-                key={topic.id}
-                href={`/forum/${topic.id}`}
-                className="bg-white border-4 border-[#233766] shadow-[8px_8px_0px_0px_#233766] p-6 flex flex-col gap-4 hover:bg-[#fff3e1] transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="bg-[#233766] text-[#fff3e1] uppercase text-xs font-black px-2 py-1 border-4 border-[#233766]">{topic.category}</span>
-                  <span className="text-xs text-[#96582e] uppercase font-bold">{topic.authorName}</span>
-                </div>
-                <h2 className="text-2xl font-black uppercase leading-tight">{topic.title}</h2>
-                <p className="text-sm font-medium text-[#233766] overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical" }}>
-                  {topic.description}
-                </p>
-                <div className="mt-auto flex justify-between items-center pt-4 border-t-2 border-[#233766] border-dashed text-xs uppercase text-[#96582e] font-bold">
-                  <span>{topic.createdAt.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}</span>
-                </div>
-              </Link>
+              <ForumCard key={topic.id} topic={topic} />
             ))
           )}
         </div>

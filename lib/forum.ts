@@ -9,6 +9,8 @@ import {
   getDoc,
   QuerySnapshot,
   DocumentData,
+  updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -122,4 +124,37 @@ export const createReply = async (topicId: string, reply: Omit<ForumReply, "id" 
     ...reply,
     createdAt: serverTimestamp(),
   });
+};
+
+// Fungsi Mengedit Topik Utama
+export const updateTopic = async (topicId: string, data: Partial<ForumTopic>) => {
+  const docRef = doc(db, "forumTopics", topicId);
+  await updateDoc(docRef, {
+    ...data,
+    updatedAt: new Date(),
+  });
+};
+
+// Fungsi Menghapus Topik Utama
+export const deleteTopic = async (topicId: string) => {
+  const docRef = doc(db, "forumTopics", topicId);
+  await deleteDoc(docRef);
+  // Catatan: Dalam arsitektur NoSQL, menghapus dokumen tidak otomatis menghapus sub-koleksi.
+  // Idealnya sub-koleksi "replies" dihapus via Cloud Functions, 
+  // atau kita biarkan saja sebagai yatim-piatu (orphan data) sementara ini.
+};
+
+// Fungsi Mengedit Balasan (Reply)
+export const updateReply = async (topicId: string, replyId: string, content: string) => {
+  const docRef = doc(db, `forumTopics/${topicId}/replies`, replyId);
+  await updateDoc(docRef, {
+    content,
+    updatedAt: new Date(),
+  });
+};
+
+// Fungsi Menghapus Balasan (Reply)
+export const deleteReply = async (topicId: string, replyId: string) => {
+  const docRef = doc(db, `forumTopics/${topicId}/replies`, replyId);
+  await deleteDoc(docRef);
 };

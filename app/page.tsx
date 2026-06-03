@@ -7,6 +7,9 @@ import Navbar from '@/components/Navbar';
 import { listenPustakaItems, PustakaAdminItem } from '@/lib/admin';
 import { listenTopics, ForumTopic } from '@/lib/forum';
 import { listenShowcase, ShowcaseItem } from '@/lib/showcase';
+import ForumCard from '@/components/ForumCard';
+import ShowcaseCard from '@/components/ShowcaseCard';
+import PustakaCard from '@/components/PustakaCard';
 
 export default function Home() {
   const [pustakaItems, setPustakaItems] = useState<PustakaAdminItem[]>([]);
@@ -118,25 +121,11 @@ export default function Home() {
         </div>
 
         {topics.length === 0 ? (
-          <div className="p-12 bg-white border-brutal shadow-[8px_8px_0px_0px_#233766] text-center uppercase font-black">Belum ada topik diskusi. Jadi yang pertama mulai!</div>
+          <div className="p-12 bg-white border-brutal shadow-brutal text-center uppercase font-black">Belum ada topik diskusi. Jadi yang pertama mulai!</div>
         ) : (
-          <div className="grid grid-cols-3 gap-8">
+          <div className="flex flex-col gap-6">
             {topics.map((topic) => (
-              <Link
-                key={topic.id}
-                href={`/forum/${topic.id}`}
-                className="bg-white border-brutal shadow-[8px_8px_0px_0px_#233766] p-6 flex flex-col hover:bg-[#fff3e1] transition-colors"
-              >
-                <div className="flex gap-2 mb-4">
-                  <span className="bg-[#233766] text-[#fff3e1] uppercase text-xs font-black px-2 py-1 border-brutal-sm">{topic.category}</span>
-                  <span className="text-xs text-[#96582e] uppercase font-bold">{topic.authorName}</span>
-                </div>
-                <h4 className="text-xl font-black leading-tight mb-3">{topic.title}</h4>
-                <p className="text-sm font-semibold mb-6 text-[#233766] line-clamp-4" style={{ display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{topic.description}</p>
-                <div className="mt-auto flex justify-between items-center border-t-2 border-[#233766] border-dashed pt-4 text-xs uppercase text-[#96582e] font-bold">
-                  <span>{topic.createdAt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                </div>
-              </Link>
+              <ForumCard key={topic.id} topic={topic} />
             ))}
           </div>
         )}
@@ -163,27 +152,9 @@ export default function Home() {
               Belum ada karya di Showcase. Tambahkan karya melalui dashboard admin.
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-8">
+            <div className="flex flex-col gap-8">
               {showcaseItems.map((item) => (
-                <Link
-                  key={item.id}
-                  href={`/showcase/${item.id}`}
-                  className="bg-bwLight border-brutal shadow-[8px_8px_0px_0px_#233766] p-6 flex flex-col hover:bg-[#f7f0db] transition-colors"
-                >
-                  <div className="min-h-[180px] bg-[#233766] text-[#fff3e1] border-brutal flex items-center justify-center font-black text-center p-4 text-lg">
-                    {item.title}
-                  </div>
-                  <div className="mt-5 flex flex-col gap-3">
-                    <span className="text-xs uppercase font-black bg-white border-brutal-sm px-2 py-1 inline-block">{item.techStack || 'Proyek'}</span>
-                    <p className="text-sm font-semibold text-[#233766] leading-relaxed" style={{ display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {item.demoUrl ? `Demo: ${item.demoUrl}` : item.repoUrl ? `Repo: ${item.repoUrl}` : 'Detail karya tersedia di halaman Showcase.'}
-                    </p>
-                    <div className="flex justify-between items-center text-xs uppercase font-black text-[#96582e] pt-4 border-t-2 border-[#233766] border-dashed">
-                      <span>{item.authorName}</span>
-                      <span>{item.createdAt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}</span>
-                    </div>
-                  </div>
-                </Link>
+                <ShowcaseCard key={item.id} item={item} />
               ))}
             </div>
           )}
@@ -236,20 +207,7 @@ export default function Home() {
             </div>
           ) : (
             displayedPustaka.map((item) => (
-              <div key={item.id} className="bg-white border-brutal shadow-brutal p-6 flex flex-col gap-4">
-                <div className="bg-[#233766] text-[#fff3e1] uppercase font-black px-3 py-1 border-brutal-sm inline-block text-xs w-max">{item.jenis}</div>
-                <h3 className="text-2xl font-black uppercase">{item.judul}</h3>
-                <p className="text-sm font-semibold text-[#233766] leading-relaxed">{item.ringkasan}</p>
-                {item.fileUrl ? (
-                  <a href={item.fileUrl} target="_blank" rel="noreferrer" className="mt-auto bg-bwText text-bwLight font-black px-4 py-3 border-brutal shadow-brutal-sm uppercase text-center block">
-                    Buka File
-                  </a>
-                ) : (
-                  <button className="mt-auto bg-bwText text-bwLight font-black px-4 py-3 border-brutal shadow-brutal-sm uppercase">
-                    Tersedia
-                  </button>
-                )}
-              </div>
+              <PustakaCard key={item.id} item={item} />
             ))
           )}
         </div>
